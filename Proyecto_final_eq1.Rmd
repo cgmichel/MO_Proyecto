@@ -1,67 +1,80 @@
 ---
-title: "Proyecto Final Métodos Numéricos y Optimización"
-subtitle: 'Equipo 1'
+title: "Proyecto Final"
+subtitle: "Métodos Numéricos y Optimización"
 author:
-  - Paulina Gómez-Mont
-  - Rodrigo Floriano
-  - Carlos Alberto García
-output: html_notebook
+- \textbf{Equipo1}
+- Paulina Gómez-Mont Wiechers \texttt{113018}
+- Rodrigo Floriano Verástegui \texttt{111954}
+- Carlos Alberto García \texttt{181987}
+header-includes:
+   - \usepackage{bbm}
+   - \usepackage{amsthm}
+   - \usepackage{upgreek}
+   - \usepackage{scalerel}
+   - \usepackage{multirow}
+   - \setlength{\parindent}{2em}
+   - \usepackage[utf8]{inputenc}
+   - \usepackage[spanish]{babel}
+   - \decimalpoint
+output:
+  pdf_document:
+    toc: false
+    toc_depth: 2
+    number_sections: true
+    fig_caption: true
 ---
 
+# Descripción del proyecto
 
-# Objetivo y descripción del Proyecto
-\
-El problema abordado en este proyecto tiene base en el concurso de kaggle ["Reducing Commercial Aviation Fatalities"](https://www.kaggle.com/c/reducing-commercial-aviation-fatalities/overview), dónde el objetivo es identificar si los pilotos de aviones presentan algún estado cognitivo que pueda ser peligroso como sueño, distracción, etc. 
+Este proyecto aborda el problema descrito en la competencia de Kaggle llamada ["Reducing Commercial Aviation Fatalities"](https://www.kaggle.com/c/reducing-commercial-aviation-fatalities/overview). El propósito de esta competencia es identificar si los pilotos de aviones presentan algún estado cognitivo que pueda ser peligroso en diversas simulaciones de vuelo, así como cuáles son sus causas.
 
-Los datos disponibles son datos psicológicos de 18 pilotos que fueron sujetos a distracciones, el conjunto de entrenamiento consiste en experimentos controlados obtenidos en un ambiente de simuladores fuera de vuelo, mientras que el conjunto de prueba consiste en datos en vuelos completos dentro de un simulador de vuelo.
+La información disponible disponible está conformada por datos psicológicos de 18 pilotos que fueron sujetos a distracciones en un ambiente de simulación de vuelo. El conjunto de entrenamiento está conformado por experimentos controlados, mientras que el conjunto de prueba consiste en datos en vuelos completos. 
 
-Los pilotos fueron expuestos a distracciones con la intención de llevarlos a alguno de los siguientes estados cognitivos:
+Con el objetivo de aislar el estado cognitivo de los pilotos ante situaciones, los pilotos fueron expuestos a distracciones con la intención de llevarlos a alguno de los siguientes estados cognitivos:
 
-+ **Atención Canalizada (CDA)** - implica la concentración en una tarea excluyendo todas las demás. Se induce obligando a los pilotos a jugar videojuegos  
++ **Atención Canalizada (`CDA`)** - Es la concentración en una tarea excluyendo todas las demás. Se induce obligando a los pilotos a jugar videojuegos. 
 
-+ **Atención Desviada (DA)** - consiste en la desviación de la atención debido a acciones o procesos  de pensamiento asociados a la toma de decisiones. Se induce resolviendo periodicamente problemas matemáticos antes de regresar a la tarea monitoreada.
++ **Atención Desviada (`DA`)** - Es la desviación de la atención debido a acciones o procesos de pensamiento asociados a la toma de decisiones. Se induce resolviendo periodicamente problemas matemáticos antes de regresar a la tarea monitoreada.
 
-+ **Sorpresa (SS)** - Es inducido al presentar al sujeto de estudio cortes de plículas en dónde el observador pueda asustarse/sorprenderse.
++ **Sorpresa (`SS`)** - Es inducido al presentar al sujeto de estudio cortes de películas en dónde el observador pueda asustarse/sorprenderse.
 
+Cada experimento consistió en monitorear en un par de pilotos de cada grupo (`crew`) expuestos *a priori* o inducidos desde el **estado base** `A` a situaciones o experimentos que pudieran inducir a alguna condición cognitiva en los pilotos. Por ello, en cada observación se tiene solamente la observación de un ejercicio asociado a los estados `CDA, DA` o `SS`. En el evento final se observa si el individuo alcanzó alguno de los estados `CDA, DA, SS` o `A`, en donde `A` implica el fallo en conseguir la condición cognitiva esperada . Por ejemplo, en el experimento `CDA`, los pilotos estaban en un estado base `A` o en el estado `CDA` y se les indicó jugar videojuegos, por lo que se espera que presenten la condición `CDA` o la ausencia de ella (`A`).
 
-Cada experimento consistió en monitorear en el tiempo a un par de pilotos expuestos a los estados cognitivos *CDA, DA , SS*. El set de entrenamiento contiene tres experimentos (uno por cada estado cognitivo) en el que los pilotos experimentan sólo uno de los estados. Por ejemplo, en el experimento CA, los pilotos estaban en un estado base (sin eventos) o en el estado CA. El conjunto de prueba contiene una simulación de vuelo completa durante la cual los pilotos podrían experimentar cualquiera de los estados (pero nunca más de uno a la vez).
+Por otro lado, el conjunto de prueba contiene una simulación de vuelo completa, durante la cual se levantó información del piloto, en donde podrían experimentar cualquiera de los estados `CDA, DA, SS` o `A` pero nunca más de uno a la vez.
 
-El objetivo de proyecto desde el enfoque de la materia, es aplicar un raegresión logística multinomial y comparar diferentes métodos de optimización para llegar a soluciones óptimas de la función objetivo (devianza) para predecir en cuál de los estados cognitivos (*CDA, DA , SS*) caen los sujetos en el experimento, para este problema la función objetivo esta dada por:
+# Objetivo
 
+El objetivo del proyecto, desde la perspectiva del análisis y optimización numérica, es aplicar un **regresión logística multinomial** en donde se pretende clasificar cada evento observado en las categorías `CDA, DA, SS` o `A`. Los problemas de optimización de esta forma parten de minimizar la **devianza** generada por el modelo propuesto y por los datos disponibles. En particular, la descripción del modelo es la siguiente:
 
+Sean $g\in \{1,\dots,K\}$ las clases a las que pertenecen las observaciones $x^{(i)},\;i=1,\dots,N$ obtenidas de una vector aleatorio $X$. Las probabilidades de pertenecer a una clase, condicional a una observación $x$ son: $p_{g}(x)=P(G=g|X=x),\;g\in \{1,\dots,K\}$ en donde:
+\begin{gather*} 
+p_{1}(x) = \exp \left(\beta_{0,1}+\beta_{1,1} x_{1}+\ldots+\beta_{p, 1} x_{p}\right) / Z \\
+p_{2}(x) = \exp \left(\beta_{0,2}+\beta_{1,2} x_{2}+\ldots+\beta_{p, 2} x_{p}\right) / Z \\
+\dots\\
+p_{K-1}(x) =\exp \left(\beta_{0, K-1}+\beta_{1, K-1} x_{2}+\ldots+\beta_{p, K-1} x_{p}\right) / Z\\
+p_{K}(x) =1 / Z\\
+Z=1+\sum_{j=1}^{K-1} \exp \left(\beta_{0}^{j}+\beta_{1}^{j} x_{1}+\ldots+\beta_{p}^{j} x_{p}\right)
+\end{gather*}
+Por lo anterios, el problema de **minimización de devianza** mencionado está descrito como:
+\begin{equation}
+\nonumber
+\underset{\boldsymbol{\beta}}{\text{min}} \qquad D(\boldsymbol{\beta})=-2 \sum_{i=1}^{N} \log p_{g^{(i)}}(x^{(i)})
+\end{equation}
+en donde $\boldsymbol{\beta}=\left(\beta_{0}^{1}, \beta_{1}^{1}, \ldots, \beta_{p}^{1}, \beta_{0}^{2}, \beta_{1}^{2}, \ldots, \beta_{p}^{2}, \ldots \beta_{0}^{K-1}, \beta_{1}^{K-1}, \ldots, \beta_{p}^{K-1}\right)$.
 
-$$
-D(\beta)=-2 \sum_{i=1}^{N} \log p_{g^{(i)}}\left(x^{(i)}\right)
-$$
+# Propuesta:
 
+Para el proyecto se utilizarán dos métodos de optimización que utilizarán técnicas de cómputo numérico. Los dos métodos a utilizar (y sus respectivas rutinas) son:
 
+1. **Método de descenso en gradiente.**\
+1.1 Cálculo de gradiente a través de diferencias centradas.\
+1.2 Método de bisección para encontrar tamaño óptimo del paso.
 
-**Propuesta:**
+2. **Método de descenso con dirección de Newton**\
+2.1 Cálculo de gradiente a través de diferencias centradas.\
+2.2 Cálculo de matriz Hessiana por diferencias.\
+2.3 Método de bisección para encontrar tamaño óptimo del paso.\
+2.4 Solución de sistemas lineales por factorización QR de la matriz de segundas Hessiana.
 
-1. **Utilizar el método de descenso en gradiente.**
-  + Para calcular las derivadas se utilizaran diferencias centradas.
-
-2. **Utilizar el método de descenso con dirección de Newton.**
-  + Para calcular las derivadas se utilizarn diferencias centradas.
-  + Se utilizara la matriz hessiana para calcular la matriz de segundas derivadas.
-  + Para resolver cada iteración se utilizará el método de factorización QR de la matriz de segundas derivadas.
-
-
-```{r, message=FALSE, echo=FALSE}
-library(tidyverse)
-```
-
-
-```{r}
-datos <- read_csv('~/Desktop/GitHub/MO_Proyecto/train.csv')
-
-head(datos)
-```
-
-
-
-```{r}
-datos %>% group_by(experiment) %>%  summarise(N = n()
-                                            )
-```
+Se propone realizar el proyecto utilizando el lenguaje de programación **R**. Dada la capacidad de procesamiento local y el tamaño del problema, se ha comenzado a explorar la opción de utilizar herramientas adicionales como **Docker**, **Spark**, **AWS** o **Dask**.
 
