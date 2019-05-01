@@ -61,7 +61,7 @@ head(datos)
 
 
 ```{r}
-datos %>% group_by(experiment) %>%  summarise(N = n()
-                                            )
+datos %>% group_by(experiment) %>%  summarise(N = n())                                          )
 ```
+
 

@@ -58,7 +58,6 @@ Newton_Desc <- function(fname,x){
     maxiter <- 50 #número máximo de iteraciones externas permitidas
     maxjter <- 6
     c1 <- 0.1 
-    c2 <- 0.45
     
     ##valores iniciales
     iter <- 0 #Contador de iteraciones
@@ -82,7 +81,7 @@ Newton_Desc <- function(fname,x){
       s <- t(p)%*%g  # derivada direccional
       jter <- 0 #iteraciones internas
       
-      while((f1 > f + alfa * c1* s || f1 <= f + alfa * c2 * s) && (jter < maxjter)){ #Búsqueda de línea
+      while((f1 > f + alfa * c1* s) && (jter < maxjter)){ #Búsqueda de línea
         alfa <- alfa / 2
         xt <- x + alfa*p
         f1 <- fname(xt) # valor de la función en el punto de prueba
@@ -103,5 +102,5 @@ funcion_prueba <- function(x){
   return(R)
 }
 
-Newton_Desc(funcion_prueba,c(10,5,6))
+Newton_Desc(funcion_prueba,sample(1:1000,10000,replace = T))
 
