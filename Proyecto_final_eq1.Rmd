@@ -59,9 +59,8 @@ head(datos)
 ```
 
 
-
+Registros por tipo de experimento
 ```{r}
-datos %>% group_by(experiment) %>%  summarise(N = n())                                          )
+datos %>% group_by(experiment) %>%  summarise(N = n())
 ```
-
 
